@@ -1,5 +1,41 @@
 'use strict';
 
+const MAX_ALPHA = 1;
+
+const assertFiniteRange = (channel, min, max) => {
+  if (!Number.isFinite(min) || !Number.isFinite(max)) {
+    throw new TypeError(`${channel} range values must be finite numbers`);
+  }
+
+  if (min > max) {
+    throw new RangeError(`${channel} minimum must be less than or equal to maximum`);
+  }
+};
+
+const assertAlphaRange = (min, max) => {
+  assertFiniteRange('alpha', min, max);
+
+  if (min < 0 || max > MAX_ALPHA) {
+    throw new RangeError('alpha range must be between 0 and 1');
+  }
+};
+
+const trimNumber = (value, fractionDigits) => {
+  const fixed = value.toFixed(fractionDigits);
+
+  return fixed.includes('.') ? fixed.replace(/\.?0+$/, '') : fixed;
+};
+
+const randomFloat = (min, max) => Math.random() * (max - min) + min;
+
+const randomInteger = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+const formatPercentage = (value) => `${trimNumber(value, 2)}%`;
+
+const formatChannelValue = (value) => trimNumber(value, 0);
+
+const formatAlpha = (value) => trimNumber(value, 2);
+
 module.exports = function randomLABColor(
   minL = 0,
   maxL = 100,
@@ -11,39 +47,19 @@ module.exports = function randomLABColor(
   maxAlpha = 1,
   useObjectExport = false
 ) {
-  // Helper function to generate a random value within a range
-  const randomValue = (min, max) => {
-    if (max <= 1) {
-      // If the range is within [0, 1], generate a random float value
-      return Math.random() * (max - min) + min;
-    } else {
-      // If the range is integers, generate a random integer value
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-  };
+  assertFiniteRange('lightness', minL, maxL);
+  assertFiniteRange('a', minA, maxA);
+  assertFiniteRange('b', minB, maxB);
+  assertAlphaRange(minAlpha, maxAlpha);
 
-  // Helper function to format a value as a percentage string
-  const formatPercentage = (value) => {
-    if (value === 0) return '0%';
-    return value.toFixed(2).replace(/\.?0+%?$/, '%');
-  };
+  const lightness = formatPercentage(randomFloat(minL, maxL));
+  const a = formatChannelValue(randomInteger(minA, maxA));
+  const b = formatChannelValue(randomInteger(minB, maxB));
+  const alpha = formatAlpha(randomFloat(minAlpha, maxAlpha));
 
-  // Helper function to format a channel value as a string
-  const formatChannelValue = (value) => {
-    if (value === 0) return '0';
-    return value.toFixed(0);
-  };
-
-  // Generate random values for lightness, a, b, and alpha
-  const lightness = formatPercentage(randomValue(minL, maxL));
-  const a = formatChannelValue(randomValue(minA, maxA));
-  const b = formatChannelValue(randomValue(minB, maxB));
-  const alpha = formatPercentage(randomValue(minAlpha, maxAlpha));
-
-  // Return the LAB color as a string or object based on useObjectExport parameter
   if (useObjectExport) {
     return { lightness, a, b, alpha };
   }
 
-  return `LAB(${lightness} ${a} ${b}${alpha ? ` / ${alpha}` : ''})`;
+  return `LAB(${lightness} ${a} ${b}${alpha === '1' ? '' : ` / ${alpha}`})`;
 };
