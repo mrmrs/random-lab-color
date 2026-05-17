@@ -1,6 +1,6 @@
 {
   "name": "random-lab-color",
-  "description": "Generate a random okLCH color.",
+  "description": "Generate a random CSS LAB color.",
   "author": "@mrmrs",
   "version": "1.0.0",
   "main": "index.js",
