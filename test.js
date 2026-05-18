@@ -1,6 +1,6 @@
 'use strict';
 
-const test = require('ava');
+const test = require('ava').default;
 const randomLABColor = require('./');
 
 test('returns a deterministic LAB string for fixed ranges', (t) => {
