@@ -10,21 +10,22 @@ npm install --save random-lab-color
 
 ## Usage
 
-`randomLABColor` returns a random color in CSS `lab()` syntax. Set the final
-argument to `true` when you need the generated channel values as an object
-instead of a color string.
+`randomLABColor` returns a random color in CSS `lab()` syntax. Pass an alpha
+range when you want transparent colors, or set the final argument to `true`
+when you need the generated channel values as an object instead of a color
+string.
 
 ```javascript
 const randomLABColor = require('random-lab-color');
 
 console.log(randomLABColor());
-// LAB(58% -16 -30 / 0.62)
+// lab(58% -16 -30)
 
-console.log(randomLABColor(58, 58, -16, -16, -30, -30, 1, 1));
-// LAB(58% -16 -30)
+console.log(randomLABColor(58, 58, -16, -16, -30, -30, 0.62, 0.62));
+// lab(58% -16 -30 / 0.62)
 
 console.log(randomLABColor(85, 85, -37, -37, 63, 63, 0.92, 0.92, true));
-// { lightness: '85%', a: '-37', b: '63', alpha: '0.92' }
+// { lightness: 85, a: -37, b: 63, alpha: 0.92 }
 ```
 
 ## API
@@ -53,19 +54,18 @@ All arguments are optional.
 | `maxA` | `127` | Maximum `a` channel value. |
 | `minB` | `-128` | Minimum `b` channel value. |
 | `maxB` | `127` | Maximum `b` channel value. |
-| `minAlpha` | `0` | Minimum alpha value. Must be between `0` and `1`. |
-| `maxAlpha` | `1` | Maximum alpha value. Must be between `0` and `1`. |
+| `minAlpha` | — | Minimum alpha value. Alpha is omitted unless supplied. |
+| `maxAlpha` | — | Maximum alpha value. Alpha is omitted unless supplied. |
 | `useObjectExport` | `false` | Return an object instead of a LAB string. |
 
-String output omits the alpha segment when alpha is `1`, because fully opaque
-CSS LAB colors do not need an explicit alpha value.
+String output omits the alpha segment unless `minAlpha` or `maxAlpha` is supplied.
 
-Object output contains formatted string values:
+Object output contains raw numeric values:
 
 - **lightness**: The value of the lightness channel (range: 0 to 100).
 - **a**: The value of the a channel (range: -128 to 127).
 - **b**: The value of the b channel (range: -128 to 127).
-- **alpha**: The alpha value (range: 0 to 1).
+- **alpha**: The alpha value (range: 0 to 1), omitted when no alpha range was supplied.
 
 The function throws a `TypeError` when a range value is not a finite number. It
 throws a `RangeError` when a minimum value is greater than its maximum, or when
